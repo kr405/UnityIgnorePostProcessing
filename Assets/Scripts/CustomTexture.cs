@@ -3,15 +3,6 @@ using UnityEngine.Rendering.Universal;
 
 namespace IgnorePostProcessing
 {
-    /// <summary>
-    /// テクスチャに書き込む値のタイプ.
-    /// </summary>
-    public enum TextureType
-    {
-        Color,
-        Depth
-    }
-
     public class CustomTexture : ScriptableRendererFeature
     {
         [SerializeField] TextureType _textureType;

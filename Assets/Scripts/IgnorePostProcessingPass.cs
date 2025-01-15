@@ -13,8 +13,9 @@ namespace IgnorePostProcessing
         List<ShaderTagId> _shaderTagIds;
         FilteringSettings _filteringSettings;
         Material _overrideMaterial = new Material(Shader.Find("Custom/IgnorePostProcessing"));
+        CustomTexture _colorTexture;
 
-        public IgnorePostProcessingPass(string samplerName, LayerMask layerMask, CustomTexturePass colorTexturePass)
+        public IgnorePostProcessingPass(string samplerName, LayerMask layerMask, CustomTexture colorTexture)
         {
             // ポストエフェクト後に描画する. すべてのレンダーキューのオブジェクトが対象.
             renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
@@ -29,8 +30,7 @@ namespace IgnorePostProcessing
                 new ShaderTagId("UniversalForwardOnly")
             };
 
-            // シェーダープロパティにレンダーテクスチャを渡す.
-            _overrideMaterial.SetTexture(_colorTextureId, colorTexturePass?.destination);
+            _colorTexture = colorTexture;
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -41,8 +41,11 @@ namespace IgnorePostProcessing
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
 
-                // 描画方法の設定. マテリアルをオーバーライド.
+                // 描画方法の設定.
                 var drawingSettings = CreateDrawingSettings(_shaderTagIds, ref renderingData, SortingCriteria.BackToFront);
+
+                // シェーダープロパティにレンダーテクスチャを渡し、マテリアルをオーバーライド.
+                _overrideMaterial.SetTexture(_colorTextureId, _colorTexture?.Pass.destination);
                 drawingSettings.overrideMaterial = _overrideMaterial;
 
                 // 画面にレンダリング.
@@ -53,4 +56,3 @@ namespace IgnorePostProcessing
         }
     }
 }
-
